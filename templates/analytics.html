@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Temperature Analytics</title>
+</head>
+<body>
+    <h1>Temperature Analytics</h1>
+    {% if analytics %}
+        <p>Minimum Temperature: {{ analytics.min_temperature }}</p>
+        <p>Maximum Temperature: {{ analytics.max_temperature }}</p>
+        <p>Average Temperature: {{ analytics.avg_temperature }}</p>
+    {% else %}
+        <p>No analytics data available.</p>
+    {% endif %}
+</body>
+</html>
