@@ -1,0 +1,6 @@
+FROM python:3.9-slim
+WORKDIR /app
+COPY requirements.analytics.txt /app/requirements.txt
+COPY analytics.py /app/
+RUN pip install -r requirements.txt
+CMD ["python", "analytics.py"]

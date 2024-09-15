@@ -1,0 +1,88 @@
+version: '3'
+services:
+  web:
+    build: 
+      context: .
+    ports:
+      - "5000:5000"
+    depends_on:
+      - db
+      - auth
+    environment:
+      - DB_HOST=db
+      - DB_USER=root
+      - DB_PASSWORD=rootpassword
+      - DB_NAME=tempdb
+    networks:
+      - app-network
+
+  db:
+    image: mysql:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: tempdb
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  analytics:
+    build:
+      context: .
+      dockerfile: Dockerfile.analytics
+    depends_on:
+      db:
+        condition: service_healthy
+      mongo:
+        condition: service_healthy
+
+    environment:
+      - DB_HOST=db
+      - DB_USER=root
+      - DB_PASSWORD=rootpassword
+      - DB_NAME=tempdb
+      - MONGO_HOST=mongo
+      - MONGO_PORT=27017
+    networks:
+      - app-network
+
+  mongo:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    networks:
+      - app-network
+
+  analytics_web:
+    build:
+      context: .
+      dockerfile: Dockerfile.analytics_web
+    ports:
+      - "5001:5000"
+    depends_on:
+      - mongo
+      - auth
+    environment:
+      - MONGO_HOST=mongo
+      - MONGO_PORT=27017
+    networks:
+      - app-network
+
+  auth:
+    build:
+      context: .
+      dockerfile: Dockerfile.auth
+    ports:
+      - "5002:5002"
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge

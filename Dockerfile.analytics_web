@@ -1,0 +1,8 @@
+FROM python:3.9-slim
+WORKDIR /app
+COPY requirements.analytics_web.txt /app/requirements.txt
+COPY analytics_web.py /app/
+COPY templates /app/templates
+RUN pip install -r requirements.txt
+EXPOSE 5000
+CMD ["python", "analytics_web.py"]
